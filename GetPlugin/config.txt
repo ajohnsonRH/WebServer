@@ -1,0 +1,4 @@
+GET GetServlet plugin.GetServlet
+POST PostServlet plugin.PostServlet
+PUT PutServlet plugin.PutServlet
+DELETE DeleteServlet plugin.DeleteServlet
