@@ -21,7 +21,6 @@
 
 package server;
 
-import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -45,16 +44,10 @@ import protocol.ProtocolException;
 public class ConnectionHandler implements Runnable {
 	private Server server;
 	private Socket socket;
-	private HashMap<String, IResponse> responses;
 
 	public ConnectionHandler(Server server, Socket socket) {
 		this.server = server;
 		this.socket = socket;
-		this.responses = new HashMap<String, IResponse>();
-		this.responses.put(Protocol.GET, new GetResponse(this.server));
-		this.responses.put(Protocol.POST, new PostResponse(this.server));
-		this.responses.put(Protocol.PUT, new PutResponse(this.server));
-		this.responses.put(Protocol.DELETE, new DeleteResponse(this.server));
 	}
 
 	/**
@@ -148,13 +141,14 @@ public class ConnectionHandler implements Runnable {
 			// equal to the
 			// "request.version" string ignoring the case of the letters in
 			// both strings
-			// TODO: Fill in the rest of the code here
+			// DONE: Fill in the rest of the code here - N/A
 		} else {
-			// DONE forward the request to the specific entry in the map
+			// Forward the request to the specific entry in the map
+			// This works for having multiple types of plugins
 			String context = request.getUri();
-
 			String[] parts = context.split("/");
 			String pluginUri = parts[1];
+			System.out.println("Pluginname: "+pluginUri);
 			IPlugin plugin = this.server.plugins.get("/" + pluginUri);
 
 			if (plugin == null) {
@@ -162,10 +156,10 @@ public class ConnectionHandler implements Runnable {
 						.create400BadRequest(Protocol.CLOSE);
 			} else {
 				String directory = this.server.getRootDirectory();
+				
 				response = plugin.handleRequest(request, directory);
 			}
 		}
-
 		// TODO: So far response could be null for protocol version mismatch.
 		// So this is a temporary patch for that problem and should be removed
 		// after a response object is created for protocol version mismatch.

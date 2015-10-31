@@ -43,28 +43,44 @@ import protocol.Protocol;
 
 /**
  * 
- * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
 public class PostServlet implements IServlet {
 	String requestType = "POST";
 
 	public HttpResponse service(HttpRequest request, String serverRootDirectory) {
 		HttpResponse response = null;
+		if (request.getMethod().equals("POST"))
+			response = doPost(request, serverRootDirectory);
+		// TODO add more than just GET to this Servlet
+		else
+			response = HttpResponseFactory.create400BadRequest(Protocol.CLOSE);
+
+		return response;
+	}
+
+	private HttpResponse doPost(HttpRequest request, String serverRootDirectory) {
+		HttpResponse response = null;
 		String uri = request.getUri();
+		System.out.println("URI:" + uri);
+		String charBody = new String(request.getBody());
+		String fileName = "", content = "";
+		// TODO something with the body
+		System.out.println("body:"+charBody);
+		System.out.println(serverRootDirectory);
+		fileName = charBody.substring(0, charBody.indexOf(":"));
+		content = charBody.substring(charBody.indexOf(":")+1);
+		System.out.println("File:"+fileName+" content:"+content);
 		
-		System.out.println("URI:"+uri);
-				
-		String[] parts = uri.split("/");
-		String fileName = "/"+parts[3];
-		String text = parts[4];
-		
-		text = text.replace("%20", " ");
-		
-		System.out.println("got here");
-		
+//		if (charBody.contains(".html")) { // TODO alter this to allow other file
+//			String[] body = charBody.split(":");
+//			fileName = body[0];
+//			content = body[2];
+//			System.out.println("File:"+fileName+" content:"+content);
+//		}
+
 		// Get root directory path from server
 		// Combine them together to form absolute file path
-		File file = new File(serverRootDirectory + fileName);
+		File file = new File(serverRootDirectory +"/"+ fileName);
 		// Check if the file exists
 		if (file.isDirectory()) {
 			// Look for default index.html file in a directory
@@ -75,20 +91,17 @@ public class PostServlet implements IServlet {
 
 			try {
 				System.out.println("got here 2");
-
 				if (file.exists()) {
 					// Lets create 200 OK response
-					CharSequence seq = java.nio.CharBuffer.wrap(request
-							.getBody());
 					Files.write(Paths.get(location),
-							new String(text).getBytes("UTF-8"),
+							new String(content).getBytes("UTF-8"),
 							StandardOpenOption.APPEND);
 					response = HttpResponseFactory.create200OK(null,
 							Protocol.CLOSE);
 				} else {
 					FileWriter fw = new FileWriter(file);
 					// File does not exist so lets create a new one!
-					fw.write(text);
+					fw.write(content);
 					response = HttpResponseFactory.create201OK(null,
 							Protocol.CLOSE);
 					fw.close();
@@ -100,14 +113,13 @@ public class PostServlet implements IServlet {
 					// Lets create 200 OK response
 			try {
 				System.out.println("got here 3");
+				System.out.println("Dir: "+serverRootDirectory);
 				if (file.exists()) {
 					// Lets create 200 OK response
-					CharSequence seq = java.nio.CharBuffer.wrap(request
-							.getBody());
-					try  {
+					try {
 						System.out.println("got here 4");
-						Files.write(Paths.get(file.getPath()),
-								new String(text).getBytes("UTF-8"),
+						Files.write(Paths.get(file.getPath()), new String(
+								content).getBytes("UTF-8"),
 								StandardOpenOption.APPEND);
 						// more code
 					} catch (IOException e) {
@@ -118,7 +130,7 @@ public class PostServlet implements IServlet {
 				} else {
 					FileWriter fw = new FileWriter(file);
 					// File does not exist so lets create a new one!
-					fw.write(text);
+					fw.write(content);
 					response = HttpResponseFactory.create201OK(null,
 							Protocol.CLOSE);
 					fw.close();

@@ -8,21 +8,27 @@ import protocol.HttpResponseFactory;
 import protocol.Protocol;
 
 public class DeleteServlet implements IServlet {
-	String requestType = "DELETE";
 
 	@Override
 	public HttpResponse service(HttpRequest request, String serverRootDirectory) {
 		
 		HttpResponse response = null;
-		String uri = request.getUri();
+		if(request.getMethod().equals("DELETE"))
+			response = doDelete(request, serverRootDirectory);
+		else
+			response = HttpResponseFactory.create400BadRequest(Protocol.CLOSE);
+		return response;
+	}
+
+	private HttpResponse doDelete(HttpRequest request, String serverRootDirectory) {
+		HttpResponse response;
+		String fileName = new String(request.getBody());
 		
-		String[] parts = uri.split("/");
-		String fileName = "/"+parts[3];
 		
 		
 		// Get root directory path from server
 		// Combine them together to form absolute file path
-		File file = new File(serverRootDirectory + fileName);
+		File file = new File(serverRootDirectory + "/" + fileName);
 		
 		// Check if the file exists
 		if (file.isDirectory()) {

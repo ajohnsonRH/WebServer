@@ -25,7 +25,7 @@
  * NY 13699-5722
  * http://clarkson.edu/~rupakhcr
  */
- 
+
 package plugin;
 
 import java.io.File;
@@ -36,8 +36,6 @@ import protocol.HttpResponse;
 import protocol.HttpResponseFactory;
 import protocol.Protocol;
 
-
-
 /**
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
@@ -47,16 +45,27 @@ public class GetServlet implements IServlet {
 
 	public HttpResponse service(HttpRequest request, String serverRootDirectory) {
 		HttpResponse response;
+		if (request.getMethod().equals("GET"))
+			response = doGet(request, serverRootDirectory);
+		// TODO add more than just GET to this Servlet
+		else
+			response = HttpResponseFactory.create400BadRequest(Protocol.CLOSE);
+
+		return response;
+	}
+
+	private HttpResponse doGet(HttpRequest request, String serverRootDirectory) {
+		HttpResponse response;
 		String uri = request.getUri();
-		
 		String[] parts = uri.split("/");
-		String fileName = "/"+parts[3];
-		
-		System.out.println(serverRootDirectory + fileName);
-		
+		String fileName = parts[3];
+
+		System.out.println("uri:" + uri);
+		System.out.println("filename:" + fileName);
+
 		// Get root directory path from server
 		// Combine them together to form absolute file path
-		File file = new File(serverRootDirectory + fileName);
+		File file = new File(serverRootDirectory + "/"+fileName);
 		// Check if the file exists
 		if (file.exists()) {
 			if (file.isDirectory()) {

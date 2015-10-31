@@ -33,8 +33,6 @@ import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
 
-import plugin.IPlugin;
-import plugin.IServlet;
 import protocol.HttpRequest;
 import protocol.HttpResponse;
 import protocol.HttpResponseFactory;
@@ -90,7 +88,7 @@ public class MyPlugin implements IPlugin {
 			String serverRootDirectory) {
 		String requestUri = request.getUri();
 		System.out.println("REQUEST URI:" + requestUri);
-
+		
 		String[] parts = requestUri.split("/");
 		String servletUri = parts[2];
 
