@@ -212,7 +212,24 @@ public class HttpResponseFactory {
 	 * @return A {@link HttpResponse} object represent 304 status.
 	 */
 	public static HttpResponse create304NotModified(String connection) {
-		// TODO fill in this method
-		return null;
+		HttpResponse response = new HttpResponse(Protocol.VERSION,
+				Protocol.NOT_MODIFIED_CODE, Protocol.NOT_MODIFIED_TEXT,
+				new HashMap<String, String>(), null);
+
+		// Lets fill up the header fields with more information
+		fillGeneralHeader(response, connection);
+
+		return response;
+	}
+	
+	public static HttpResponse create500InternalServerError(String connection) {
+		HttpResponse response = new HttpResponse(Protocol.VERSION,
+				Protocol.INTERNAL_SERVER_ERROR_CODE, Protocol.INTERNAL_SERVER_ERROR_TEXT,
+				new HashMap<String, String>(), null);
+
+		// Lets fill up the header fields with more information
+		fillGeneralHeader(response, connection);
+
+		return response;
 	}
 }
