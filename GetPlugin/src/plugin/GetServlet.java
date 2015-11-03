@@ -60,9 +60,6 @@ public class GetServlet implements IServlet {
 		String[] parts = uri.split("/");
 		String fileName = parts[3];
 
-		System.out.println("uri:" + uri);
-		System.out.println("filename:" + fileName);
-
 		// Get root directory path from server
 		// Combine them together to form absolute file path
 		File file = new File(serverRootDirectory + "/"+fileName);

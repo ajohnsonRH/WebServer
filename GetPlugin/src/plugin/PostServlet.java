@@ -51,7 +51,6 @@ public class PostServlet implements IServlet {
 		HttpResponse response = null;
 		if (request.getMethod().equals("POST"))
 			response = doPost(request, serverRootDirectory);
-		// TODO add more than just GET to this Servlet
 		else
 			response = HttpResponseFactory.create400BadRequest(Protocol.CLOSE);
 
@@ -64,36 +63,41 @@ public class PostServlet implements IServlet {
 		System.out.println("URI:" + uri);
 		String charBody = new String(request.getBody());
 		String fileName = "", content = "";
-		// TODO something with the body
-		System.out.println("body:"+charBody);
+		System.out.println("body:" + charBody);
 		System.out.println(serverRootDirectory);
-		fileName = charBody.substring(0, charBody.indexOf(":"));
-		content = charBody.substring(charBody.indexOf(":")+1);
-		System.out.println("File:"+fileName+" content:"+content);
-		
-//		if (charBody.contains(".html")) { // TODO alter this to allow other file
-//			String[] body = charBody.split(":");
-//			fileName = body[0];
-//			content = body[2];
-//			System.out.println("File:"+fileName+" content:"+content);
-//		}
+		try{
+			fileName = charBody.substring(0, charBody.indexOf(":"));
+			content = charBody.substring(charBody.indexOf(":") + 1);
+		} catch (Exception e){
+			response = HttpResponseFactory.create400BadRequest(Protocol.CLOSE);
+			return response;
+		}
+		System.out.println("File:" + fileName + " content:" + content);
 
 		// Get root directory path from server
 		// Combine them together to form absolute file path
-		File file = new File(serverRootDirectory +"/"+ fileName);
+		File file = new File(serverRootDirectory + "/" + fileName);
+
 		// Check if the file exists
 		if (file.isDirectory()) {
-			// Look for default index.html file in a directory
-			String location = serverRootDirectory + fileName
-					+ System.getProperty("file.separator")
-					+ Protocol.DEFAULT_FILE;
-			file = new File(location);
-
+			System.out.println("doPost() - File is a directory");
+			if (file.exists()) {
+				response = HttpResponseFactory
+						.create304NotModified(Protocol.CLOSE);
+			} else {
+				// create the directory
+				file.mkdirs();
+				response = HttpResponseFactory
+						.create200OK(null, Protocol.CLOSE);
+			}
+		} else { // Its a file
 			try {
-				System.out.println("got here 2");
+				System.out.println("doPost() - File is not a directory");
+				System.out.println("Dir: " + serverRootDirectory);
 				if (file.exists()) {
-					// Lets create 200 OK response
-					Files.write(Paths.get(location),
+					// Append body to existing file
+					System.out.println("doPost() - file exists");
+					Files.write(Paths.get(file.getPath()),
 							new String(content).getBytes("UTF-8"),
 							StandardOpenOption.APPEND);
 					response = HttpResponseFactory.create200OK(null,
@@ -107,35 +111,7 @@ public class PostServlet implements IServlet {
 					fw.close();
 				}
 			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		} else { // Its a file
-					// Lets create 200 OK response
-			try {
-				System.out.println("got here 3");
-				System.out.println("Dir: "+serverRootDirectory);
-				if (file.exists()) {
-					// Lets create 200 OK response
-					try {
-						System.out.println("got here 4");
-						Files.write(Paths.get(file.getPath()), new String(
-								content).getBytes("UTF-8"),
-								StandardOpenOption.APPEND);
-						// more code
-					} catch (IOException e) {
-						// exception handling left as an exercise for the reader
-					}
-					response = HttpResponseFactory.create200OK(null,
-							Protocol.CLOSE);
-				} else {
-					FileWriter fw = new FileWriter(file);
-					// File does not exist so lets create a new one!
-					fw.write(content);
-					response = HttpResponseFactory.create201OK(null,
-							Protocol.CLOSE);
-					fw.close();
-				}
-			} catch (IOException e) {
+				response = HttpResponseFactory.create500InternalServerError(Protocol.CLOSE);
 				e.printStackTrace();
 			}
 		}

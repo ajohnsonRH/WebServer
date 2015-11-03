@@ -24,7 +24,6 @@ package server;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.HashMap;
 
 import plugin.IPlugin;
 import protocol.HttpRequest;
@@ -44,6 +43,9 @@ import protocol.ProtocolException;
 public class ConnectionHandler implements Runnable {
 	private Server server;
 	private Socket socket;
+	
+	public static int requests=0;
+	public static int responses=0;
 
 	public ConnectionHandler(Server server, Socket socket) {
 		this.server = server;
@@ -93,8 +95,8 @@ public class ConnectionHandler implements Runnable {
 		HttpResponse response = null;
 		try {
 			request = HttpRequest.read(inStream);
-			System.out.println(request);
-		} catch (ProtocolException pe) {
+			requests++;
+		} catch (ProtocolException pe){
 			// We have some sort of protocol exception. Get its status code and
 			// create response
 			// We know only two kind of exception is possible inside
@@ -148,7 +150,6 @@ public class ConnectionHandler implements Runnable {
 			String context = request.getUri();
 			String[] parts = context.split("/");
 			String pluginUri = parts[1];
-			System.out.println("Pluginname: "+pluginUri);
 			IPlugin plugin = this.server.plugins.get("/" + pluginUri);
 
 			if (plugin == null) {
@@ -170,6 +171,9 @@ public class ConnectionHandler implements Runnable {
 		try {
 			// Write response and we are all done so close the socket
 			response.write(outStream);
+			responses++;
+			if(responses != requests)
+				System.out.println("A request was not serviced!");
 			// System.out.println(response);
 			socket.close();
 		} catch (Exception e) {

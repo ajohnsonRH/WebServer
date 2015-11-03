@@ -74,7 +74,7 @@ public class BruteForceAttack extends DOSAttack {
 					
 					// Prepare the request buffer
 					StringBuffer buffer = new StringBuffer();
-					buffer.append("GET " + uri + " HTTP/1.1");
+					buffer.append("GET /GetPlugin/GetServlet/index.html HTTP/1.1");
 					buffer.append("\r\n");
 					buffer.append("connection: keep-alive");
 					buffer.append("\r\n");

@@ -60,6 +60,9 @@ public class Server implements Runnable {
 		this.serviceTime = 0;
 		this.window = window;
 		plugins = new HashMap<String, IPlugin>();
+		
+		ConnectionHandler.requests=0;
+		ConnectionHandler.responses=0;
 	}
 
 	/**
@@ -149,8 +152,9 @@ public class Server implements Runnable {
 	 * Stops the server from listening further.
 	 */
 	public synchronized void stop() {
-		if (this.stop)
+		if (this.stop){
 			return;
+		}
 
 		// Set the stop flag to be true
 		this.stop = true;
@@ -164,6 +168,9 @@ public class Server implements Runnable {
 			socket.close();
 		} catch (Exception e) {
 		}
+		
+		System.out.println(ConnectionHandler.requests+" requests\n"+ConnectionHandler.responses+" responses");
+
 	}
 
 	/**

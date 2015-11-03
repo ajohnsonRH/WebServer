@@ -52,7 +52,6 @@ public class PluginLoader extends Thread {
 	private static final String PLUGINS_FOLDER = "plugins";
 	private static final String USER_DIR = "user.dir";
 	private static final String CREATE_PLUGIN_METHOD_NAME = "createPlugin";
-	private static final String JAR_PATH = "Jar path: ";
 	private static final String FILE_SERVLETS = "file:plugins\\";
 	private static final String PLUGIN_CREATOR = "Plugin-Creator";
 	private Server server;
@@ -93,15 +92,11 @@ public class PluginLoader extends Thread {
 	}
 
 	private void updatePlugins(List<WatchEvent<?>> events) throws Exception {
-		for (WatchEvent event : events) {
+		for (WatchEvent<?> event : events) {
 			if (event.kind() == StandardWatchEventKinds.ENTRY_CREATE||event.kind()==StandardWatchEventKinds.ENTRY_MODIFY) {
-				System.out.println("Created: "
-						+ event.context().toString());
 				loadPlugin(event.context().toString());				
 			}
 			if (event.kind() == StandardWatchEventKinds.ENTRY_DELETE) {
-				System.out.println("Delete: "
-						+ event.context().toString());
 				server.plugins.remove( event.context().toString());
 			}
 		}
@@ -119,6 +114,7 @@ public class PluginLoader extends Thread {
 		Method method = beanClass.getMethod(CREATE_PLUGIN_METHOD_NAME);
 		IPlugin newplugin = (IPlugin) method.invoke(beanObj);
 		server.plugins.put(newplugin.getContextRoot(),newplugin);
+		urlClassLoader.close();
 	}
 
 	private String getPluginCreatorFolder(String jarName) throws IOException {
@@ -127,6 +123,7 @@ public class PluginLoader extends Thread {
 		Manifest m = jarFile.getManifest();
 		Attributes attr = m.getMainAttributes();
 		String pluginCreatorLocal = attr.getValue(PLUGIN_CREATOR);
+		jarFile.close();
 		return pluginCreatorLocal;
 	}
 
