@@ -187,6 +187,18 @@ public class HttpResponseFactory {
 
 		return response;
 	}
+	
+	public static HttpResponse create413EntityTooLarge(String connection) {
+		HttpResponse response = new HttpResponse(Protocol.VERSION,
+				Protocol.ENTITY_TOO_LARGE_CODE, Protocol.ENTITY_TOO_LARGE_TEXT,
+				new HashMap<String, String>(), null);
+		
+
+		// Lets fill up the header fields with more information
+		fillGeneralHeader(response, connection);
+
+		return response;
+	}
 
 	/**
 	 * Creates a {@link HttpResponse} object for sending version not supported
@@ -202,6 +214,17 @@ public class HttpResponseFactory {
 		return null;
 	}
 
+	public static HttpResponse create429TooManyRequest(String connection) {
+		HttpResponse response = new HttpResponse(Protocol.VERSION,
+				Protocol.TOO_MANY_REQUESTS_CODE, Protocol.TOO_MANY_REQUESTS_TEXT,
+				new HashMap<String, String>(), null);
+		
+
+		// Lets fill up the header fields with more information
+		fillGeneralHeader(response, connection);
+
+		return response;
+	}
 	/**
 	 * Creates a {@link HttpResponse} object for sending file not modified
 	 * response.

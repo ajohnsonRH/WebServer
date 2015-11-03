@@ -25,6 +25,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import plugin.IPlugin;
 import protocol.HttpRequest;
@@ -44,10 +48,27 @@ import protocol.ProtocolException;
 public class ConnectionHandler implements Runnable {
 	private Server server;
 	private Socket socket;
+	private Timer timer;
+
+	class updateClientList extends TimerTask {
+
+		private Server server1;
+
+		public updateClientList(Server s) {
+			server1 = s;
+		}
+
+		public void run() {
+			this.server1.resetClients();
+		}
+	}
 
 	public ConnectionHandler(Server server, Socket socket) {
 		this.server = server;
 		this.socket = socket;
+		this.timer = new Timer();
+		timer.schedule(new updateClientList(this.server), 0, 1000);
+
 	}
 
 	/**
@@ -91,82 +112,105 @@ public class ConnectionHandler implements Runnable {
 		// Now lets create a HttpRequest object
 		HttpRequest request = null;
 		HttpResponse response = null;
-		try {
-			request = HttpRequest.read(inStream);
-			System.out.println(request);
-		} catch (ProtocolException pe) {
-			// We have some sort of protocol exception. Get its status code and
-			// create response
-			// We know only two kind of exception is possible inside
-			// fromInputStream
-			// Protocol.BAD_REQUEST_CODE and Protocol.NOT_SUPPORTED_CODE
-			int status = pe.getStatus();
-			if (status == Protocol.BAD_REQUEST_CODE) {
-				response = HttpResponseFactory
-						.create400BadRequest(Protocol.CLOSE);
-			}
-			// TODO: Handle version not supported code as well
-		} catch (Exception e) {
-			e.printStackTrace();
-			// For any other error, we will create bad request response as well
-			response = HttpResponseFactory.create400BadRequest(Protocol.CLOSE);
-		}
 
-		if (response != null) {
-			// Means there was an error, now write the response object to the
-			// socket
-			try {
-				response.write(outStream);
-			} catch (Exception e) {
-				// We will ignore this exception
-				e.printStackTrace();
-			}
-			// Increment number of connections by 1
-			server.incrementConnections(1);
-			// Get the end time
-			long end = System.currentTimeMillis();
-			this.server.incrementServiceTime(end - start);
-			return;
-		}
+		Pattern ipAddressRegex = Pattern.compile("/([0-9\\.:]+):\\d+");
+		String socketAddr = this.socket.getRemoteSocketAddress().toString();
+		Matcher m = ipAddressRegex.matcher(socketAddr);
+		m.matches();
+		String ipAddress = m.group(1);
 
-		// We reached here means no error so far, so lets process further
-		// DONE STRATEGY PATTERN
-
-		// Fill in the code to create a response for version mismatch.
-		// You may want to use constants such as Protocol.VERSION,
-		// Protocol.NOT_SUPPORTED_CODE, and more.
-		// You can check if the version matches as follows
-		if (!request.getVersion().equalsIgnoreCase(Protocol.VERSION)) {
-			// Here you checked that the "Protocol.VERSION" string is not
-			// equal to the
-			// "request.version" string ignoring the case of the letters in
-			// both strings
-			// DONE: Fill in the rest of the code here - N/A
+		if (server.getCurrentClients().get(ipAddress) > 150) {
+			response = HttpResponseFactory
+					.create429TooManyRequest(Protocol.CLOSE);
 		} else {
-			// Forward the request to the specific entry in the map
-			// This works for having multiple types of plugins
-			String context = request.getUri();
-			String[] parts = context.split("/");
-			String pluginUri = parts[1];
-			System.out.println("Pluginname: "+pluginUri);
-			IPlugin plugin = this.server.plugins.get("/" + pluginUri);
-
-			if (plugin == null) {
+			try {
+				request = HttpRequest.read(inStream);
+				System.out.println(request);
+			} catch (ProtocolException pe) {
+				// We have some sort of protocol exception. Get its status code
+				// and
+				// create response
+				// We know only two kind of exception is possible inside
+				// fromInputStream
+				// Protocol.BAD_REQUEST_CODE and Protocol.NOT_SUPPORTED_CODE
+				int status = pe.getStatus();
+				if (status == Protocol.BAD_REQUEST_CODE) {
+					response = HttpResponseFactory
+							.create400BadRequest(Protocol.CLOSE);
+				}
+				// TODO: Handle version not supported code as well
+			} catch (Exception e) {
+				e.printStackTrace();
+				// For any other error, we will create bad request response as
+				// well
 				response = HttpResponseFactory
 						.create400BadRequest(Protocol.CLOSE);
+			}
+
+			if (response != null) {
+				// Means there was an error, now write the response object to
+				// the
+				// socket
+				try {
+					response.write(outStream);
+				} catch (Exception e) {
+					// We will ignore this exception
+					e.printStackTrace();
+				}
+				// Increment number of connections by 1
+				server.incrementConnections(1);
+				// Get the end time
+				long end = System.currentTimeMillis();
+				this.server.incrementServiceTime(end - start);
+				return;
+			}
+
+			// We reached here means no error so far, so lets process further
+			// DONE STRATEGY PATTERN
+
+			// Fill in the code to create a response for version mismatch.
+			// You may want to use constants such as Protocol.VERSION,
+			// Protocol.NOT_SUPPORTED_CODE, and more.
+			// You can check if the version matches as follows
+			if (!request.getVersion().equalsIgnoreCase(Protocol.VERSION)) {
+				// Here you checked that the "Protocol.VERSION" string is not
+				// equal to the
+				// "request.version" string ignoring the case of the letters in
+				// both strings
+				// DONE: Fill in the rest of the code here - N/A
 			} else {
-				String directory = this.server.getRootDirectory();
-				
-				response = plugin.handleRequest(request, directory);
+				// Forward the request to the specific entry in the map
+				// This works for having multiple types of plugins
+				String context = request.getUri();
+				System.out.println(context);
+				String[] parts = context.split("/");
+				for (String p : parts) {
+					System.out.println(p);
+				}
+				// TODO add in static calls to resources
+				String pluginUri = parts[1];
+				System.out.println("Pluginname: " + pluginUri);
+				IPlugin plugin = this.server.plugins.get("/" + pluginUri);
+
+				if (plugin == null) {
+					response = HttpResponseFactory
+							.create400BadRequest(Protocol.CLOSE);
+				} else {
+					String directory = this.server.getRootDirectory();
+
+					response = plugin.handleRequest(request, directory);
+				}
+			}
+			// TODO: So far response could be null for protocol version
+			// mismatch.
+			// So this is a temporary patch for that problem and should be
+			// removed
+			// after a response object is created for protocol version mismatch.
+			if (response == null) {
+				response = HttpResponseFactory
+						.create400BadRequest(Protocol.CLOSE);
 			}
 		}
-		// TODO: So far response could be null for protocol version mismatch.
-		// So this is a temporary patch for that problem and should be removed
-		// after a response object is created for protocol version mismatch.
-		if (response == null) {
-			response = HttpResponseFactory.create400BadRequest(Protocol.CLOSE);
-		}
-
 		try {
 			// Write response and we are all done so close the socket
 			response.write(outStream);
@@ -183,4 +227,5 @@ public class ConnectionHandler implements Runnable {
 		long end = System.currentTimeMillis();
 		this.server.incrementServiceTime(end - start);
 	}
+
 }

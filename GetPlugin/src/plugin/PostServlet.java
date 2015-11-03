@@ -35,7 +35,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
-import plugin.IServlet;
 import protocol.HttpRequest;
 import protocol.HttpResponse;
 import protocol.HttpResponseFactory;
@@ -61,22 +60,17 @@ public class PostServlet implements IServlet {
 	private HttpResponse doPost(HttpRequest request, String serverRootDirectory) {
 		HttpResponse response = null;
 		String uri = request.getUri();
-		System.out.println("URI:" + uri);
 		String charBody = new String(request.getBody());
-		String fileName = "", content = "";
-		// TODO something with the body
-		System.out.println("body:"+charBody);
-		System.out.println(serverRootDirectory);
+		String fileName = "";
+		String content = "";
 		fileName = charBody.substring(0, charBody.indexOf(":"));
 		content = charBody.substring(charBody.indexOf(":")+1);
-		System.out.println("File:"+fileName+" content:"+content);
 		
-//		if (charBody.contains(".html")) { // TODO alter this to allow other file
-//			String[] body = charBody.split(":");
-//			fileName = body[0];
-//			content = body[2];
-//			System.out.println("File:"+fileName+" content:"+content);
-//		}
+		if(content.length()>10000){
+			response = HttpResponseFactory
+					.create413EntityTooLarge(Protocol.CLOSE);
+			return response;
+		}
 
 		// Get root directory path from server
 		// Combine them together to form absolute file path

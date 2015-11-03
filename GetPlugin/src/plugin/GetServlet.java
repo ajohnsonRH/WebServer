@@ -30,7 +30,6 @@ package plugin;
 
 import java.io.File;
 
-import plugin.IServlet;
 import protocol.HttpRequest;
 import protocol.HttpResponse;
 import protocol.HttpResponseFactory;
@@ -65,7 +64,7 @@ public class GetServlet implements IServlet {
 
 		// Get root directory path from server
 		// Combine them together to form absolute file path
-		File file = new File(serverRootDirectory + "/"+fileName);
+		File file = new File(serverRootDirectory + "/" + fileName);
 		// Check if the file exists
 		if (file.exists()) {
 			if (file.isDirectory()) {
@@ -75,18 +74,39 @@ public class GetServlet implements IServlet {
 						+ Protocol.DEFAULT_FILE;
 				file = new File(location);
 				if (file.exists()) {
-					// Lets create 200 OK response
-					response = HttpResponseFactory.create200OK(file,
-							Protocol.CLOSE);
+					
+					System.out.println("length: "+file.length());
+
+					if (file.length() > 10000000) {
+						response = HttpResponseFactory
+								.create413EntityTooLarge(Protocol.CLOSE);
+					}
+
+					else {
+						// Lets create 200 OK response
+						response = HttpResponseFactory.create200OK(file,
+								Protocol.CLOSE);
+					}
 				} else {
 					// File does not exist so lets create 404 file not found
 					response = HttpResponseFactory
 							.create404NotFound(Protocol.CLOSE);
 				}
-			} else { // Its a file
-						// Lets create 200 OK response
-				response = HttpResponseFactory
-						.create200OK(file, Protocol.CLOSE);
+			} else {
+
+				System.out.println("length: "+file.length());
+				
+				if (file.length() > 10000000) {
+					response = HttpResponseFactory
+							.create413EntityTooLarge(Protocol.CLOSE);
+				}
+
+				else {
+					// Its a file
+					// Lets create 200 OK response
+					response = HttpResponseFactory
+							.create200OK(file, Protocol.CLOSE);
+				}
 			}
 		} else {
 			// File does not exist so lets create 404 file not found code
