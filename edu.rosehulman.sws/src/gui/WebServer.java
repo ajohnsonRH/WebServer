@@ -28,7 +28,16 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SpringLayout;
+import javax.swing.WindowConstants;
 
 import plugin.PluginLoader;
 import server.Server;
@@ -102,7 +111,7 @@ public class WebServer extends JFrame {
 		this.txtPortNumber = new JTextField("8080");
 		this.lblRootDirectory = new JLabel("Select Root Directory");
 		// Set the root directory to be the current working directory
-		this.txtRootDirectory = new JTextField(System.getProperty("user.dir"));
+		this.txtRootDirectory = new JTextField(System.getProperty("user.dir")+"\\web");
 		this.txtRootDirectory.setEditable(false);
 		this.txtRootDirectory.setPreferredSize(new Dimension(400, 21));
 		this.butSelect = new JButton("Select");
