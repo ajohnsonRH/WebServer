@@ -77,7 +77,7 @@ public class GetServlet implements IServlet {
 					
 					System.out.println("length: "+file.length());
 
-					if (file.length() > 1000000) {
+					if (file.length() > 10000000) {
 						response = HttpResponseFactory
 								.create413EntityTooLarge(Protocol.CLOSE);
 					}
@@ -96,7 +96,7 @@ public class GetServlet implements IServlet {
 
 				System.out.println("length: "+file.length());
 				
-				if (file.length() > 1000000) {
+				if (file.length() > 10000000) {
 					response = HttpResponseFactory
 							.create413EntityTooLarge(Protocol.CLOSE);
 				}
