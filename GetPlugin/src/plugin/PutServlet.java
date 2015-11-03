@@ -29,12 +29,9 @@ public class PutServlet implements IServlet {
 
 		HttpResponse response = null;
 		String uri = request.getUri();
-
-		System.out.println("URI:" + uri);
-
-		// String[] parts = uri.split("/");
-
-		String fileName = "", content = "";
+		String[] parts = uri.split("/");
+		String fileName = "";
+		String content = "";
 		String charBody = new String(request.getBody());
 		System.out.println("body:" + charBody);
 		System.out.println(serverRootDirectory);
@@ -42,6 +39,15 @@ public class PutServlet implements IServlet {
 		content = charBody.substring(charBody.indexOf(":") + 1);
 		System.out.println("File:" + fileName + " content:" + content);
 
+		fileName = charBody.substring(0, charBody.indexOf(":"));
+		content = charBody.substring(charBody.indexOf(":")+1);
+		
+		if(content.length()>10000){
+			response = HttpResponseFactory
+					.create413EntityTooLarge(Protocol.CLOSE);
+			return response;
+		}
+		
 		// Get root directory path from server
 		// Combine them together to form absolute file path
 		File file = new File(serverRootDirectory + "/" + fileName);

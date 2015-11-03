@@ -60,6 +60,9 @@ public class Protocol {
     
     public static final int INTERNAL_SERVER_ERROR_CODE = 500;
     public static final String INTERNAL_SERVER_ERROR_TEXT = "Internal Server Error";
+
+    public static final int ENTITY_TOO_LARGE_CODE = 413;
+    public static final String ENTITY_TOO_LARGE_TEXT = "Request Entity Too Large";
     
     public static final int NOT_SUPPORTED_CODE = 505;
     public static final String NOT_SUPPORTED_TEXT = "HTTP Version Not Supported";
