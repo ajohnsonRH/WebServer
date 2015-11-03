@@ -30,11 +30,18 @@ public class PutServlet implements IServlet {
 		HttpResponse response = null;
 		String uri = request.getUri();
 		String[] parts = uri.split("/");
+<<<<<<< HEAD
 		String fileName = "";
 		String content = "";
 		String charBody = new String(request.getBody());
 		System.out.println("body:" + charBody);
 		System.out.println(serverRootDirectory);
+=======
+
+		String fileName = "";
+		String content = "";
+		String charBody = new String(request.getBody());
+>>>>>>> 7a59bdb60a963a74272c7e2c1502b5cea3b94477
 		fileName = charBody.substring(0, charBody.indexOf(":"));
 		content = charBody.substring(charBody.indexOf(":") + 1);
 		System.out.println("File:" + fileName + " content:" + content);
