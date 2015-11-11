@@ -66,8 +66,6 @@ public class MyPlugin implements IPlugin {
 				Constructor<?> constructor = servletClass.getConstructor();
 				Object servletInstance = constructor.newInstance();
 				
-				System.out.println("Getting put into servlet map:"+splited[1]);
-
 				servletMap.put(splited[1], (IServlet) servletInstance);
 
 			} catch (Exception e) {
@@ -87,15 +85,12 @@ public class MyPlugin implements IPlugin {
 	public HttpResponse handleRequest(HttpRequest request,
 			String serverRootDirectory) {
 		String requestUri = request.getUri();
-		System.out.println("REQUEST URI:" + requestUri);
 		
 		String[] parts = requestUri.split("/");
 		String servletUri = parts[2];
 
 		IServlet servlet = findServlet(servletUri);
 		
-		System.out.println("Getting searched in servlet map:"+servletUri);
-
 		if (servlet == null)
 			return HttpResponseFactory.create404NotFound(Protocol.BAD_REQUEST_TEXT);
 

@@ -29,28 +29,43 @@
 package plugin;
 
 import java.io.File;
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import protocol.HttpRequest;
 import protocol.HttpResponse;
 import protocol.HttpResponseFactory;
 import protocol.Protocol;
 
-/**
- * 
- * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
- */
-public class GetServlet implements IServlet {
+@WebServlet("/GetPlugin/GetServlet/*")
+public class GetServlet extends HttpServlet implements IServlet {
+	private static final long serialVersionUID = 1L;
 	String requestType = "GET";
 
 	public HttpResponse service(HttpRequest request, String serverRootDirectory) {
 		HttpResponse response;
 		if (request.getMethod().equals("GET"))
 			response = doGet(request, serverRootDirectory);
-		// TODO add more than just GET to this Servlet
 		else
 			response = HttpResponseFactory.create400BadRequest(Protocol.CLOSE);
 
 		return response;
+	}
+	
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException{
+		//super.doGet(req, resp);
+		String text = "some text";
+		System.out.println(this.getServletInfo());
+
+		resp.setContentType("text/plain");  // Set content type of the response so that jQuery knows what it can expect.
+		resp.setCharacterEncoding("UTF-8"); // You want world domination, huh?
+		resp.getWriter().write(text);
 	}
 
 	private HttpResponse doGet(HttpRequest request, String serverRootDirectory) {
@@ -58,9 +73,6 @@ public class GetServlet implements IServlet {
 		String uri = request.getUri();
 		String[] parts = uri.split("/");
 		String fileName = parts[3];
-
-		System.out.println("uri:" + uri);
-		System.out.println("filename:" + fileName);
 
 		// Get root directory path from server
 		// Combine them together to form absolute file path

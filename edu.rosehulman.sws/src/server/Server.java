@@ -27,8 +27,6 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import plugin.IPlugin;
 
@@ -46,7 +44,7 @@ public class Server implements Runnable {
 
 	private long connections;
 	private long serviceTime;
-	private HashMap<String, Integer> clients;
+
 	private WebServer window;
 	public HashMap<String, IPlugin> plugins;
 
@@ -55,7 +53,6 @@ public class Server implements Runnable {
 	 * @param port
 	 */
 	public Server(String rootDirectory, int port, WebServer window) {
-		clients = new HashMap<>();
 		this.rootDirectory = rootDirectory;
 		this.port = port;
 		this.stop = false;
@@ -63,6 +60,9 @@ public class Server implements Runnable {
 		this.serviceTime = 0;
 		this.window = window;
 		plugins = new HashMap<String, IPlugin>();
+		
+		ConnectionHandler.requests=0;
+		ConnectionHandler.responses=0;
 	}
 
 	/**
@@ -125,23 +125,13 @@ public class Server implements Runnable {
 	public void run() {
 		try {
 			this.welcomeSocket = new ServerSocket(port);
-			Pattern ipAddressRegex = Pattern.compile("/([0-9\\.:]+):\\d+");
+
 			// Now keep welcoming new connections until stop flag is set to true
 			while (true) {
 				// Listen for incoming socket connection
 				// This method block until somebody makes a request
 				Socket connectionSocket = this.welcomeSocket.accept();
-				String socketAddr = connectionSocket.getRemoteSocketAddress()
-						.toString();
-				Matcher m = ipAddressRegex.matcher(socketAddr);
-				m.matches();
-				String ipAddress = m.group(1);
-				if (clients.get(ipAddress) == null) {
-					clients.put(ipAddress, 0);
-				} else {
-					int currentValue = clients.get(ipAddress);
-					clients.put(ipAddress, currentValue + 1);
-				}
+
 				// Come out of the loop if the stop flag is set
 				if (this.stop)
 					break;
@@ -158,16 +148,13 @@ public class Server implements Runnable {
 		}
 	}
 
-	public HashMap<String, Integer> getCurrentClients() {
-		return this.clients;
-	}
-
 	/**
 	 * Stops the server from listening further.
 	 */
 	public synchronized void stop() {
-		if (this.stop)
+		if (this.stop){
 			return;
+		}
 
 		// Set the stop flag to be true
 		this.stop = true;
@@ -181,6 +168,9 @@ public class Server implements Runnable {
 			socket.close();
 		} catch (Exception e) {
 		}
+		
+		System.out.println(ConnectionHandler.requests+" requests\n"+ConnectionHandler.responses+" responses");
+
 	}
 
 	/**
@@ -192,14 +182,5 @@ public class Server implements Runnable {
 		if (this.welcomeSocket != null)
 			return this.welcomeSocket.isClosed();
 		return true;
-	}
-
-	/**
-	 * Resemts the clients request #s
-	 */
-	public void resetClients() {
-		for (String s: this.clients.keySet()) {
-			this.clients.put(s, 0);
-		}
 	}
 }
