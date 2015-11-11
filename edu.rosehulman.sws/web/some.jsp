@@ -22,13 +22,43 @@
               });
             });
         </script>
-        
+         <script>
+            $(document).on("click", "#putButton", function() { 
+              $.ajax(
+              {
+             	 type: 'PUT',
+             	 url:"http://localhost:8080/GetPlugin/PutServlet/",
+             	 data: "magic.txt:overwriting text",
+             	 dataType: "text",
+             	 success:function(resultData){alert("save completed!")}
+              });
+            });
+        </script>
+             <script>
+            $(document).on("click", "#putNewButton", function() { 
+              $.ajax(
+              {
+             	 type: 'PUT',
+             	 url:"http://localhost:8080/GetPlugin/PutServlet/",
+             	 data: "newFile.txt:new file text",
+             	 dataType: "text",
+             	 success:function(resultData){alert("save completed!")}
+              });
+            });
+        </script>
     </head>
     <body>
-        <button id="getButton">Ajax get</button>
+        <button id="getButton">Ajax GET</button>
         <div id="getdiv"></div>
         
-        <button id="postButton">Ajax post</button>
+        <button id="postButton">Ajax POST</button>
         <div id="postdiv"></div>
+        
+        <button id="putButton">Ajax PUT to magic.txt</button>
+	
+        <button id="putNewButton">Ajax PUT to newFile.txt</button>
+	
+        <button id="deleteButton">Ajax DELETE</button>
+        <button id="extraButton">Ajax Extra</button>
     </body>
 </html>
