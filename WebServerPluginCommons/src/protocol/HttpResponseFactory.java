@@ -62,7 +62,6 @@ public class HttpResponseFactory {
 	}
 
 	public static HttpResponse create200OKGET(String connection, String body) {
-
 		HttpResponse response = new DynamicResponse(Protocol.VERSION,
 				Protocol.OK_CODE, Protocol.OK_TEXT,
 				new HashMap<String, String>(), null);
@@ -73,7 +72,7 @@ public class HttpResponseFactory {
 		// Lets get content length in bytes
 		long length = body.length() + 1;
 		response.put(Protocol.CONTENT_LENGTH, length + "");
-		((DynamicResponse)response).setBody(body);
+		((DynamicResponse) response).setBody(body);
 		return response;
 
 	}
@@ -261,5 +260,21 @@ public class HttpResponseFactory {
 		fillGeneralHeader(response, connection);
 
 		return response;
+	}
+
+	public static HttpResponse create200OKPOST(String connection, String body) {
+		HttpResponse response = new DynamicResponse(Protocol.VERSION,
+				Protocol.OK_CODE, Protocol.OK_TEXT,
+				new HashMap<String, String>(), null);
+
+		// Lets fill up header fields with more information
+		fillGeneralHeader(response, connection);
+
+		// Lets get content length in bytes
+		long length = body.length() + 1;
+		response.put(Protocol.CONTENT_LENGTH, length + "");
+		((DynamicResponse) response).setBody(body);
+		return response;
+
 	}
 }

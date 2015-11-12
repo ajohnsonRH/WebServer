@@ -12,11 +12,12 @@
         </script>
           <script>
             $(document).on("click", "#postButton", function() { 
+            
               $.ajax(
               {
              	 type: 'POST',
-             	 url:"http://localhost:8080/GetPlugin/PostServlet/",
-             	 data: "magic.txt:newtext",
+             	 url:"http://localhost:8080/BasketballTeamPlugin/PostServlet/",
+             	 data: $("#team_name_id").serialize(),
              	 dataType: "text",
              	 success:function(resultData){alert("save completed!")}
               });
@@ -60,8 +61,8 @@
         </script>
     </head>
     <body>
-    	<input type="text" name="username">
-    	<button id="extraButton">Ajax Sign On</button>
+    	<input type="text" name="team_name_id" id ="team_name_id">
+    	<button id="extraButton">Add a new Team</button>
     	<div/>
         <button id="getButton">Ajax GET</button>
         <div id="getdiv"></div>
