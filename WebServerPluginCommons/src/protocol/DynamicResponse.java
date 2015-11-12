@@ -7,6 +7,7 @@ import java.util.Map;
 
 public class DynamicResponse extends HttpResponse {
 	private String body;
+	private String tempo;
 	public DynamicResponse(String version, int status, String phrase,
 			Map<String, String> header, File file) {
 		super(version, status, phrase, header, file);
