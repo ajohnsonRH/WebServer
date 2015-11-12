@@ -28,8 +28,8 @@
               $.ajax(
               {
              	 type: 'PUT',
-             	 url:"http://localhost:8080/GetPlugin/PutServlet/",
-             	 data: "magic.txt:overwriting text",
+             	 url:"http://localhost:8080/BasketballTeamPlugin/PutServlet/",
+             	 data: $("#team_name_u").serialize()+" "+$("#num_members").serialize(),
              	 dataType: "text",
              	 success:function(resultData){alert("save completed!")}
               });
@@ -52,8 +52,8 @@
               $.ajax(
               {
              	 type: 'DELETE',
-             	 url:"http://localhost:8080/GetPlugin/DeleteServlet/",
-             	 data: "newFile.txt",
+             	 url:"http://localhost:8080/BasketballTeamPlugin/DeleteServlet/",
+             	 data: $("#team_name_d").serialize(),
              	 dataType: "text",
              	 success:function(resultData){alert("Delete completed!")}
               });
@@ -66,16 +66,17 @@
     	<br></br>
         <button id="getButton">List teams</button>
         <div id="teamdiv"></div>
-        <p>Old team name:</p>
-        <input type="text" name="old_team" id ="old_team">
-        <p>New team name:</p>
-        <input type="text" name="new_team" id ="new_team">
+        <p>Team Name:</p>
+        <input type="text" name="team_name_u" id ="team_name_u">
+        <p>Number of Members:</p>
+        <input type="text" name="num_members" id ="num_members">
         <br></br>
-        <button id="putButton">Update Team name</button>
+        <button id="putButton">Update Team Name</button>
     	<br></br>
         <button id="putNewButton">Ajax PUT to newFile.txt</button>
     	<br></br>
-        <button id="deleteButton">Ajax DELETE</button>
+    	<input type="text" name="team_name_dd" id ="team_name_dd">
+    	<button id="deleteButton">Ajax DELETE</button>
 		<div/>
         
     </body>
