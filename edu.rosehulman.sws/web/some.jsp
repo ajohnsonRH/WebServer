@@ -34,7 +34,7 @@
               });
             });
         </script>
-             <script>
+         <script>
             $(document).on("click", "#putNewButton", function() { 
               $.ajax(
               {
@@ -46,8 +46,23 @@
               });
             });
         </script>
+        <script>
+            $(document).on("click", "#deleteButton", function() { 
+              $.ajax(
+              {
+             	 type: 'DELETE',
+             	 url:"http://localhost:8080/GetPlugin/DeleteServlet/",
+             	 data: "newFile.txt",
+             	 dataType: "text",
+             	 success:function(resultData){alert("Delete completed!")}
+              });
+            });
+        </script>
     </head>
     <body>
+    	<input type="text" name="username">
+    	<button id="extraButton">Ajax Sign On</button>
+    	<div/>
         <button id="getButton">Ajax GET</button>
         <div id="getdiv"></div>
         
@@ -55,10 +70,11 @@
         <div id="postdiv"></div>
         
         <button id="putButton">Ajax PUT to magic.txt</button>
-	
+		<div/>
         <button id="putNewButton">Ajax PUT to newFile.txt</button>
-	
+		<div/>
         <button id="deleteButton">Ajax DELETE</button>
-        <button id="extraButton">Ajax Extra</button>
+		<div/>
+        
     </body>
 </html>
