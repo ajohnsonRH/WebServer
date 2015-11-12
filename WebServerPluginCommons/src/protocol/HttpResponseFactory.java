@@ -61,6 +61,23 @@ public class HttpResponseFactory {
 		response.put(Protocol.PROVIDER, Protocol.AUTHOR);
 	}
 
+	public static HttpResponse create200OKGET(String connection, String body) {
+
+		HttpResponse response = new DynamicResponse(Protocol.VERSION,
+				Protocol.OK_CODE, Protocol.OK_TEXT,
+				new HashMap<String, String>(), null);
+
+		// Lets fill up header fields with more information
+		fillGeneralHeader(response, connection);
+
+		// Lets get content length in bytes
+		long length = body.length() + 1;
+		response.put(Protocol.CONTENT_LENGTH, length + "");
+		((DynamicResponse)response).setBody(body);
+		return response;
+
+	}
+
 	/**
 	 * Creates a {@link HttpResponse} object for sending the supplied file with
 	 * supplied connection parameter.
@@ -73,7 +90,7 @@ public class HttpResponseFactory {
 	 * @return A {@link HttpResponse} object represent 200 status.
 	 */
 	public static HttpResponse create200OK(File file, String connection) {
-		HttpResponse response = new HttpResponse(Protocol.VERSION,
+		HttpResponse response = new StaticResponse(Protocol.VERSION,
 				Protocol.OK_CODE, Protocol.OK_TEXT,
 				new HashMap<String, String>(), file);
 
@@ -119,33 +136,34 @@ public class HttpResponseFactory {
 	 * @return A {@link HttpResponse} object represent 200 status.
 	 */
 	public static HttpResponse create201OK(File file, String connection) {
-		HttpResponse response = new HttpResponse(Protocol.VERSION,
+		HttpResponse response = new StaticResponse(Protocol.VERSION,
 				Protocol.OK_CODE, Protocol.OK_TEXT,
 				new HashMap<String, String>(), file);
 
-//		// Lets fill up header fields with more information
-//		fillGeneralHeader(response, connection);
-//
-//		// Lets add last modified date for the file
-//		long timeSinceEpoch = file.lastModified();
-//		Date modifiedTime = new Date(timeSinceEpoch);
-//		response.put(Protocol.LAST_MODIFIED, modifiedTime.toString());
-//
-//		// Lets get content length in bytes
-//		long length = file.length();
-//		response.put(Protocol.CONTENT_LENGTH, length + "");
-//
-//		// Lets get MIME type for the file
-//		FileNameMap fileNameMap = URLConnection.getFileNameMap();
-//		String mime = fileNameMap.getContentTypeFor(file.getName());
-//		// The fileNameMap cannot find mime type for all of the documents, e.g.
-//		// doc, odt, etc.
-//		// So we will not add this field if we cannot figure out what a mime
-//		// type is for the file.
-//		// Let browser do this job by itself.
-//		if (mime != null) {
-//			response.put(Protocol.CONTENT_TYPE, mime);
-//		}
+		// // Lets fill up header fields with more information
+		// fillGeneralHeader(response, connection);
+		//
+		// // Lets add last modified date for the file
+		// long timeSinceEpoch = file.lastModified();
+		// Date modifiedTime = new Date(timeSinceEpoch);
+		// response.put(Protocol.LAST_MODIFIED, modifiedTime.toString());
+		//
+		// // Lets get content length in bytes
+		// long length = file.length();
+		// response.put(Protocol.CONTENT_LENGTH, length + "");
+		//
+		// // Lets get MIME type for the file
+		// FileNameMap fileNameMap = URLConnection.getFileNameMap();
+		// String mime = fileNameMap.getContentTypeFor(file.getName());
+		// // The fileNameMap cannot find mime type for all of the documents,
+		// e.g.
+		// // doc, odt, etc.
+		// // So we will not add this field if we cannot figure out what a mime
+		// // type is for the file.
+		// // Let browser do this job by itself.
+		// if (mime != null) {
+		// response.put(Protocol.CONTENT_TYPE, mime);
+		// }
 
 		return response;
 	}
@@ -159,7 +177,7 @@ public class HttpResponseFactory {
 	 * @return A {@link HttpResponse} object represent 400 status.
 	 */
 	public static HttpResponse create400BadRequest(String connection) {
-		HttpResponse response = new HttpResponse(Protocol.VERSION,
+		HttpResponse response = new StaticResponse(Protocol.VERSION,
 				Protocol.BAD_REQUEST_CODE, Protocol.BAD_REQUEST_TEXT,
 				new HashMap<String, String>(), null);
 
@@ -178,7 +196,7 @@ public class HttpResponseFactory {
 	 * @return A {@link HttpResponse} object represent 404 status.
 	 */
 	public static HttpResponse create404NotFound(String connection) {
-		HttpResponse response = new HttpResponse(Protocol.VERSION,
+		HttpResponse response = new StaticResponse(Protocol.VERSION,
 				Protocol.NOT_FOUND_CODE, Protocol.NOT_FOUND_TEXT,
 				new HashMap<String, String>(), null);
 
@@ -187,12 +205,11 @@ public class HttpResponseFactory {
 
 		return response;
 	}
-	
+
 	public static HttpResponse create413EntityTooLarge(String connection) {
-		HttpResponse response = new HttpResponse(Protocol.VERSION,
+		HttpResponse response = new StaticResponse(Protocol.VERSION,
 				Protocol.ENTITY_TOO_LARGE_CODE, Protocol.ENTITY_TOO_LARGE_TEXT,
 				new HashMap<String, String>(), null);
-		
 
 		// Lets fill up the header fields with more information
 		fillGeneralHeader(response, connection);
@@ -224,7 +241,7 @@ public class HttpResponseFactory {
 	 * @return A {@link HttpResponse} object represent 304 status.
 	 */
 	public static HttpResponse create304NotModified(String connection) {
-		HttpResponse response = new HttpResponse(Protocol.VERSION,
+		HttpResponse response = new StaticResponse(Protocol.VERSION,
 				Protocol.NOT_MODIFIED_CODE, Protocol.NOT_MODIFIED_TEXT,
 				new HashMap<String, String>(), null);
 
@@ -233,10 +250,11 @@ public class HttpResponseFactory {
 
 		return response;
 	}
-	
+
 	public static HttpResponse create500InternalServerError(String connection) {
-		HttpResponse response = new HttpResponse(Protocol.VERSION,
-				Protocol.INTERNAL_SERVER_ERROR_CODE, Protocol.INTERNAL_SERVER_ERROR_TEXT,
+		HttpResponse response = new StaticResponse(Protocol.VERSION,
+				Protocol.INTERNAL_SERVER_ERROR_CODE,
+				Protocol.INTERNAL_SERVER_ERROR_TEXT,
 				new HashMap<String, String>(), null);
 
 		// Lets fill up the header fields with more information
