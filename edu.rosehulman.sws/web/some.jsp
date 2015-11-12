@@ -71,7 +71,7 @@
         <p>Number of Members:</p>
         <input type="text" name="num_members" id ="num_members">
         <br></br>
-        <button id="putButton">Update Team Name</button>
+        <button id="putButton">Update Number of Players</button>
     	<br></br>
         <button id="putNewButton">Ajax PUT to newFile.txt</button>
     	<br></br>
