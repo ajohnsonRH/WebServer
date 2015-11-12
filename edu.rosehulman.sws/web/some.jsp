@@ -6,12 +6,12 @@
         <script>
             $(document).on("click", "#getButton", function() { // When HTML DOM "click" event is invoked on element with ID "somebutton", execute the following function...
                 $.get("http://localhost:8080/BasketballTeamPlugin/ExtraServlet/", function(responseText) {   // Execute Ajax GET request on URL of "someservlet" and execute the following function with Ajax response text...
-                    $("#getdiv").text(responseText);           // Locate HTML DOM element with ID "somediv" and set its text content with the response text.
+                    $("#teamdiv").text(responseText);           // Locate HTML DOM element with ID "somediv" and set its text content with the response text.
                 });
             });
         </script>
           <script>
-            $(document).on("click", "#postButton", function() { 
+            $(document).on("click", "#addATeam", function() { 
             
               $.ajax(
               {
@@ -62,18 +62,19 @@
     </head>
     <body>
     	<input type="text" name="team_name_id" id ="team_name_id">
-    	<button id="extraButton">Add a new Team</button>
-    	<div/>
-        <button id="getButton">Ajax GET</button>
-        <div id="getdiv"></div>
-        
-        <button id="postButton">Ajax POST</button>
-        <div id="postdiv"></div>
-        
-        <button id="putButton">Ajax PUT to magic.txt</button>
-		<div/>
+    	<button id="addATeam">Add a new Team</button>
+    	<br></br>
+        <button id="getButton">List teams</button>
+        <div id="teamdiv"></div>
+        <p>Old team name:</p>
+        <input type="text" name="old_team" id ="old_team">
+        <p>New team name:</p>
+        <input type="text" name="new_team" id ="new_team">
+        <br></br>
+        <button id="putButton">Update Team name</button>
+    	<br></br>
         <button id="putNewButton">Ajax PUT to newFile.txt</button>
-		<div/>
+    	<br></br>
         <button id="deleteButton">Ajax DELETE</button>
 		<div/>
         
