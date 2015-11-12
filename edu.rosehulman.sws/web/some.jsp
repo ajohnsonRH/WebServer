@@ -1,16 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <style>
+            body {
+        background-color: #d0e4fe;
+        font-size: 150%;
+        }
+        h1 {
+            color: orange;
+            text-align: center;
+        }
+        #divider {
+            height: 50px;
+            background: #d0e4fe
+}
+        </style>
         <title>SO question 4112686</title>
         <script src="http://code.jquery.com/jquery-latest.min.js"></script>
         <script>
-            $(document).on("click", "#getButton", function() { // When HTML DOM "click" event is invoked on element with ID "somebutton", execute the following function...
-                $.get("http://localhost:8080/BasketballTeamPlugin/ExtraServlet/", function(responseText) {   // Execute Ajax GET request on URL of "someservlet" and execute the following function with Ajax response text...
-                    $("#teamdiv").text(responseText);           // Locate HTML DOM element with ID "somediv" and set its text content with the response text.
+            $(document).on("click", "#getButton", function() {
+            	$.ajax(
+    		    {
+                   type: 'GET',
+                   url:"http://localhost:8080/BasketballTeamPlugin/GetServlet/",
+                   success:function(resultData){
+                	   $('#name_list').html(resultData).wrap('<pre />');//.split('l').join('&#10;'));
+                	   }
                 });
             });
         </script>
-          <script>
+        <script>
             $(document).on("click", "#addATeam", function() { 
             
               $.ajax(
@@ -23,7 +42,7 @@
               });
             });
         </script>
-         <script>
+        <script>
             $(document).on("click", "#putButton", function() { 
               $.ajax(
               {
@@ -35,7 +54,7 @@
               });
             });
         </script>
-         <script>
+        <script>
             $(document).on("click", "#putNewButton", function() { 
               $.ajax(
               {
@@ -61,23 +80,25 @@
         </script>
     </head>
     <body>
-    	<input type="text" name="team_name_id" id ="team_name_id">
-    	<button id="addATeam">Add a new Team</button>
-    	<br></br>
-        <button id="getButton">List teams</button>
-        <div id="teamdiv"></div>
-        <p>Team Name:</p>
-        <input type="text" name="team_name_u" id ="team_name_u">
-        <p>Number of Members:</p>
-        <input type="text" name="num_members" id ="num_members">
-        <br></br>
+        <h1> The Best Website Since Sliced Bread</h1>
+        <p> List Teams </p>
+        <button id="getButton">List Teams</button>
+        <p id=name_list></p>
+    	<div id="divider"></div>
+    	<p> Add Team </p>
+        <input type="text" name="team_name_id" id ="team_name_id" placeholder="New team name">
+        <button id="addATeam">Add Team</button>
+        <div id="divider"></div>
+        <p> Update Players</p>
+        <input type="text" name="team_name_u" id ="team_name_u" placeholder="Team name">
+        <input type="text" name="num_members" id ="num_members" placeholder="Number of players">
         <button id="putButton">Update Number of Players</button>
-    	<br></br>
-        <button id="putNewButton">Ajax PUT to newFile.txt</button>
-    	<br></br>
-    	<input type="text" name="team_name_dd" id ="team_name_dd">
-    	<button id="deleteButton">Ajax DELETE</button>
-		<div/>
+        <div id="divider"></div>
+        <p> Delete Team </p>
+        <input type="text" name="team_name_d" id ="team_name_d" placeholder="Team name">
+        <button id="deleteButton">Delete Team</button>
+        <div id="divider"></div>
+    	<button id="putNewButton">Ajax PUT to newFile.txt</button>
         
     </body>
 </html>

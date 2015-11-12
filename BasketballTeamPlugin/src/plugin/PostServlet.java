@@ -58,11 +58,14 @@ public class PostServlet implements IServlet {
 	private HttpResponse doPost(HttpRequest request, String serverRootDirectory) {
 		HttpResponse response;
 		String temp = String.valueOf(request.getBody());
-		String teamName = temp.substring(temp.indexOf("=") + 1, temp.length());
-		boolean added = postNewTeam(teamName);
+		
+		String[] nameAndNum = temp.split(" ");
+		String[] name = nameAndNum[0].split("=");
+		
+		boolean added = postNewTeam(name[1]);
 		if (added) {
-			response = HttpResponseFactory.create200OKPOST(Protocol.CLOSE,
-					teamName);
+			response = HttpResponseFactory.create200OKPOSTPUTDELETE(Protocol.CLOSE,
+					name[1]);
 		} else
 			response = HttpResponseFactory.create400BadRequest(Protocol.CLOSE);
 		return response;
@@ -71,17 +74,13 @@ public class PostServlet implements IServlet {
 	private static boolean postNewTeam(String teamName) {
 		teamName = teamName.replace('+', ' ');
 		ArrayList<String> teams = new ArrayList<String>();
-		System.out
-				.println("-------- MySQL JDBC Connection Testing ------------");
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 		} catch (ClassNotFoundException e) {
-			System.out.println("Where is your MySQL JDBC Driver?");
 			e.printStackTrace();
 			return false;
 		}
 
-		System.out.println("MySQL JDBC Driver Registered!");
 		Connection connection = null;
 
 		try {
@@ -90,20 +89,20 @@ public class PostServlet implements IServlet {
 					"adalyn", "godisgood");
 
 		} catch (SQLException e) {
-			System.out.println("Connection Failed! Check output console");
 			e.printStackTrace();
 			return false;
 		}
 
 		if (connection != null) {
-			System.out.println("You made it, take control your database now!");
 			Statement stmt = null;
 			ResultSet rs = null;
 
 			try {
 				stmt = connection.createStatement();
-				stmt.executeUpdate("INSERT INTO `test_for_addie`.`Teams` (`TeamName`,`numMembers`) VALUES ('"
-						+ teamName + "', '" + 0 + "');");
+				stmt.executeUpdate("INSERT INTO test_for_addie.Teams (TeamName, numMembers) VALUES ('"
+						+ teamName + "', '0');");
+				
+				System.out.println("Successfully added the team "+teamName);
 
 				// Now do something with the ResultSet ....
 			} catch (SQLException ex) {

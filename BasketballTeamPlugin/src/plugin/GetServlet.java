@@ -1,41 +1,13 @@
-/*
- * GetServlet.java
- * Oct 25, 2015
- *
- * Simple Web Server (SWS) for EE407/507 and CS455/555
- * 
- * Copyright (C) 2011 Chandan Raj Rupakheti, Clarkson University
- * 
- * This program is free software: you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation, either 
- * version 3 of the License, or any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/lgpl.html>.
- * 
- * Contact Us:
- * Chandan Raj Rupakheti (rupakhcr@clarkson.edu)
- * Department of Electrical and Computer Engineering
- * Clarkson University
- * Potsdam
- * NY 13699-5722
- * http://clarkson.edu/~rupakhcr
- */
-
 package plugin;
 
-import java.io.File;
-import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
-import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import protocol.HttpRequest;
 import protocol.HttpResponse;
@@ -44,85 +16,102 @@ import protocol.Protocol;
 
 @WebServlet("/BasketballTeamPlugin/GetServlet/*")
 public class GetServlet extends HttpServlet implements IServlet {
-	private static final long serialVersionUID = 1L;
-	String requestType = "GET";
 
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
-		// super.doGet(req, resp);
-		System.out.println(this.getServletInfo());
-		resp.setContentType("text/plain"); 
-		resp.setCharacterEncoding("UTF-8");
-		resp.getWriter().write("");
-	}
+	private static final long serialVersionUID = 1L;
 
 	public HttpResponse service(HttpRequest request, String serverRootDirectory) {
-		System.out.println("service in getServlet");
-		HttpResponse response = null;
-		if(request.getMethod().equals("GET"))
-			response = doGet(request,serverRootDirectory);
-			else
+		HttpResponse response;
+		if (request.getMethod().equals("GET"))
+			response = doGet(request, serverRootDirectory);
+		else
 			response = HttpResponseFactory.create400BadRequest(Protocol.CLOSE);
+
 		return response;
 	}
+
 	private HttpResponse doGet(HttpRequest request, String serverRootDirectory) {
 		HttpResponse response;
-		String uri = request.getUri();
-		String[] parts = uri.split("/");
-		String fileName = parts[3];
+		String teams = doGetTeams();
+		response = HttpResponseFactory.create200OKGET(Protocol.CLOSE, teams.toString());
+		return response;
+	}
+	
+	private static String doGetTeams() {
+		StringBuilder teams = new StringBuilder();
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			return teams.toString();
+		}
 
-		// Get root directory path from server
-		// Combine them together to form absolute file path
-		File file = new File(serverRootDirectory + "/" + fileName);
-		// Check if the file exists
-		if (file.exists()) {
-			if (file.isDirectory()) {
-				// Look for default index.html file in a directory
-				String location = serverRootDirectory + uri
-						+ System.getProperty("file.separator")
-						+ Protocol.DEFAULT_FILE;
-				file = new File(location);
-				if (file.exists()) {
-					
-					System.out.println("length: "+file.length());
+		Connection connection = null;
 
-					if (file.length() > 10000000) {
-						response = HttpResponseFactory
-								.create413EntityTooLarge(Protocol.CLOSE);
+		try {
+			connection = DriverManager.getConnection(
+					"jdbc:mysql://mysql.allisonandwilliams.com/test_for_addie",
+					"adalyn", "godisgood");
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return teams.toString();
+		}
+
+		if (connection != null) {
+			Statement stmt = null;
+			ResultSet rs = null;
+
+			try {
+				stmt = connection.createStatement();
+				rs = stmt.executeQuery("SELECT * FROM Teams");
+
+				if (stmt.execute("SELECT * FROM Teams")) {
+					rs = stmt.getResultSet();
+					teams.append("Team Name                Number of Players\n");
+					int g= 25;
+					while (rs.next()) {
+						teams.append(rs.getString(1));
+						for(int i=0; i< 25-rs.getString(1).length(); i++){
+							teams.append(" ");
+						}
+						teams.append(rs.getString(2));
+						teams.append("\n");
 					}
-
-					else {
-						// Lets create 200 OK response
-						response = HttpResponseFactory.create200OK(file,
-								Protocol.CLOSE);
-					}
-				} else {
-					// File does not exist so lets create 404 file not found
-					response = HttpResponseFactory
-							.create404NotFound(Protocol.CLOSE);
-				}
-			} else {
-
-				System.out.println("length: "+file.length());
-				
-				if (file.length() > 10000000) {
-					response = HttpResponseFactory
-							.create413EntityTooLarge(Protocol.CLOSE);
 				}
 
-				else {
-					// Its a file
-					// Lets create 200 OK response
-					response = HttpResponseFactory
-							.create200OK(file, Protocol.CLOSE);
+				// Now do something with the ResultSet ....
+			} catch (SQLException ex) {
+				// handle any errors
+				System.out.println("SQLException: " + ex.getMessage());
+				System.out.println("SQLState: " + ex.getSQLState());
+				System.out.println("VendorError: " + ex.getErrorCode());
+			} finally {
+				// it is a good idea to release
+				// resources in a finally{} block
+				// in reverse-order of their creation
+				// if they are no-longer needed
+
+				if (rs != null) {
+					try {
+						rs.close();
+					} catch (SQLException sqlEx) {
+					} // ignore
+
+					rs = null;
+				}
+
+				if (stmt != null) {
+					try {
+						stmt.close();
+					} catch (SQLException sqlEx) {
+					} // ignore
+
+					stmt = null;
 				}
 			}
 		} else {
-			// File does not exist so lets create 404 file not found code
-			response = HttpResponseFactory.create404NotFound(Protocol.CLOSE);
+			System.out.println("Failed to make connection!");
 		}
-		return response;
+		return teams.toString();
 	}
-
 }
