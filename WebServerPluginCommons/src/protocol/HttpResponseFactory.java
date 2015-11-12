@@ -61,6 +61,26 @@ public class HttpResponseFactory {
 		response.put(Protocol.PROVIDER, Protocol.AUTHOR);
 	}
 
+	public static HttpResponse create200OKGET(String connection, String body) {
+
+		HttpResponse response = new HttpResponse(Protocol.VERSION,
+				Protocol.OK_CODE, Protocol.OK_TEXT,
+				new HashMap<String, String>(), null);
+
+			// Lets fill up header fields with more information
+			fillGeneralHeader(response, connection);
+
+			// Lets get content length in bytes
+			long length = body.length()+1;
+			response.put(Protocol.CONTENT_LENGTH, length + "");
+			System.out.println("CONTENT LENGTH WERGWEGRWTHG: "+length);
+			response.put(Protocol.CONTENT_TYPE, body);
+		
+		return response;
+		
+	}
+	
+	
 	/**
 	 * Creates a {@link HttpResponse} object for sending the supplied file with
 	 * supplied connection parameter.

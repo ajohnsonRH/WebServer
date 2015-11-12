@@ -28,8 +28,19 @@
 
 package plugin;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -46,28 +57,26 @@ import protocol.Protocol;
 public class GetServlet extends HttpServlet implements IServlet {
 	private static final long serialVersionUID = 1L;
 	String requestType = "GET";
+//TODO delete this
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		// super.doGet(req, resp);
+		System.out.println(this.getServletInfo());
+		resp.setContentType("text/plain"); 
+		resp.setCharacterEncoding("UTF-8");
+		resp.getWriter().write("");
+	}
 
 	public HttpResponse service(HttpRequest request, String serverRootDirectory) {
-		HttpResponse response;
-		if (request.getMethod().equals("GET"))
-			response = doGet(request, serverRootDirectory);
-		else
+		
+		HttpResponse response = null;
+		if(request.getMethod().equals("GET"))
+			response = doGet(request,serverRootDirectory);
+			else
 			response = HttpResponseFactory.create400BadRequest(Protocol.CLOSE);
-
 		return response;
 	}
-	
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException{
-		//super.doGet(req, resp);
-		String text = "some text";
-		System.out.println(this.getServletInfo());
-
-		resp.setContentType("text/plain");  // Set content type of the response so that jQuery knows what it can expect.
-		resp.setCharacterEncoding("UTF-8"); // You want world domination, huh?
-		resp.getWriter().write(text);
-	}
-
 	private HttpResponse doGet(HttpRequest request, String serverRootDirectory) {
 		HttpResponse response;
 		String uri = request.getUri();
