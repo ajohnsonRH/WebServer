@@ -70,8 +70,8 @@ public class HttpResponseFactory {
 		fillGeneralHeader(response, connection);
 
 		// Lets get content length in bytes
-		long length = body.length() + 1;
-		response.put(Protocol.CONTENT_LENGTH, length + "");
+		response.put(Protocol.CONTENT_LENGTH, body.length() + "");
+		response.put(Protocol.CONTENT_TYPE, body);
 		((DynamicResponse) response).setBody(body);
 		return response;
 
@@ -262,7 +262,7 @@ public class HttpResponseFactory {
 		return response;
 	}
 
-	public static HttpResponse create200OKPOST(String connection, String body) {
+	public static HttpResponse create200OKPOSTPUTDELETE(String connection, String body) {
 		HttpResponse response = new DynamicResponse(Protocol.VERSION,
 				Protocol.OK_CODE, Protocol.OK_TEXT,
 				new HashMap<String, String>(), null);

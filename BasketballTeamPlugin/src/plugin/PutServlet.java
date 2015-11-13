@@ -31,14 +31,18 @@ public class PutServlet implements IServlet {
 	private HttpResponse doPut(HttpRequest request, String serverRootDirectory) {
 		HttpResponse response = null;
 		String temp = String.valueOf(request.getBody());
+		
+		String[] nameAndNum = temp.split(" ");
+		String[] name = nameAndNum[0].split("=");
+		String[] num = nameAndNum[1].split("=");
+		
 		System.out.println(temp);
-		String teamName = temp.substring(temp.indexOf("=") + 1, temp.length());
-		String numMem = temp
-				.substring(temp.lastIndexOf("=") + 1, temp.length());
-		boolean updated = putUpdateTeam(teamName, numMem);
+
+
+		boolean updated = updateTeam(name[1], num[1]);
 		if (updated) {
-			response = HttpResponseFactory.create200OKPOST(Protocol.CLOSE,
-					teamName);
+			response = HttpResponseFactory.create200OKPOSTPUTDELETE(Protocol.CLOSE,
+					name[1]);
 
 		} else {
 			response = HttpResponseFactory.create400BadRequest(Protocol.CLOSE);
@@ -47,19 +51,17 @@ public class PutServlet implements IServlet {
 		return response;
 	}
 
-	private static boolean putUpdateTeam(String teamName,
+	private static boolean updateTeam(String teamName,
 			String numberOfTeamMembers) {
-		System.out
-				.println("-------- MySQL JDBC Connection Testing ------------");
+		teamName = teamName.replace('+', ' ');
+
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 		} catch (ClassNotFoundException e) {
-			System.out.println("Where is your MySQL JDBC Driver?");
 			e.printStackTrace();
 			return false;
 		}
 
-		System.out.println("MySQL JDBC Driver Registered!");
 		Connection connection = null;
 
 		try {
@@ -68,24 +70,23 @@ public class PutServlet implements IServlet {
 					"adalyn", "godisgood");
 
 		} catch (SQLException e) {
-			System.out.println("Connection Failed! Check output console");
 			e.printStackTrace();
 			return false;
 		}
 
 		if (connection != null) {
-			System.out
-					.println("You made it, take control of your database now!");
 			Statement stmt = null;
 			ResultSet rs = null;
 
 			try {
 				// TODO fix why PUT works on the server and does not work here
 				stmt = connection.createStatement();
-				stmt.executeUpdate("UPDATE `test_for_addie`.`Teams` SET `numMembers`='"
+				stmt.executeUpdate("UPDATE test_for_addie.Teams SET numMembers='"
 						+ numberOfTeamMembers
-						+ "' WHERE `TeamName`='"
+						+ "' WHERE TeamName='"
 						+ teamName + "';");
+				
+				System.out.println("Successfully updated "+teamName+"'s number of players to "+numberOfTeamMembers);
 
 				// Now do something with the ResultSet ....
 			} catch (SQLException ex) {

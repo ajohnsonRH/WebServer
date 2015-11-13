@@ -1,6 +1,10 @@
 package plugin;
 
-import java.io.File;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 import javax.servlet.annotation.WebServlet;
 
@@ -13,43 +17,93 @@ import protocol.Protocol;
 public class DeleteServlet implements IServlet {
 
 	public HttpResponse service(HttpRequest request, String serverRootDirectory) {
-		
 		HttpResponse response = null;
-		if(request.getMethod().equals("DELETE"))
-			response = doDelete(request, serverRootDirectory);
+
+		if (request.getMethod().equals("DELETE"))
+			response = doPut(request, serverRootDirectory);
 		else
 			response = HttpResponseFactory.create400BadRequest(Protocol.CLOSE);
+
 		return response;
+
 	}
 
-	private HttpResponse doDelete(HttpRequest request, String serverRootDirectory) {
-		HttpResponse response;
-		String fileName = new String(request.getBody());
+	private HttpResponse doPut(HttpRequest request, String serverRootDirectory) {
+		HttpResponse response = null;
+		String temp = String.valueOf(request.getBody());
 		
-		// Get root directory path from server
-		// Combine them together to form absolute file path
-		File file = new File(serverRootDirectory + "/" + fileName);
-		
-		// Check if the file exists
-		if (file.exists()) {
+		String[] nameAndNum = temp.split(" ");
+		String[] name = nameAndNum[0].split("=");
 
-			if (file.isDirectory()) {
-				//TODO This won't work if directory isn't empty
-				file.delete();
-				response = HttpResponseFactory
-						.create200OK(null, Protocol.CLOSE);
-			} else { 
-				// It's a file
-				file.delete();
-				response = HttpResponseFactory
-						.create200OK(null, Protocol.CLOSE);
-			}
+		boolean updated = deleteTeam(name[1]);
+		if (updated) {
+			response = HttpResponseFactory.create200OKPOSTPUTDELETE(Protocol.CLOSE,
+					name[1]);
+
 		} else {
-			// File does not exist so lets return
-			System.out.println("body = " + new String(request.getBody()));
-			response = HttpResponseFactory.create404NotFound(Protocol.CLOSE);
+			response = HttpResponseFactory.create400BadRequest(Protocol.CLOSE);
+
 		}
 		return response;
 	}
-//	String query = DELETE FROM `Teams` WHERE `TeamName`=;
+
+	private static boolean deleteTeam(String teamName) {
+		teamName = teamName.replace('+', ' ');
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			return false;
+		}
+
+		Connection connection = null;
+
+		try {
+			connection = DriverManager.getConnection(
+					"jdbc:mysql://mysql.allisonandwilliams.com/test_for_addie",
+					"adalyn", "godisgood");
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+
+		if (connection != null) {
+			Statement stmt = null;
+			ResultSet rs = null;
+
+			try {
+				// TODO fix why PUT works on the server and does not work here
+				stmt = connection.createStatement();
+				stmt.executeUpdate("DELETE FROM test_for_addie.Teams WHERE TeamName='"
+						+ teamName + "';");
+				
+				System.out.println("Successfully deleted "+teamName);
+
+				// Now do something with the ResultSet ....
+			} catch (SQLException ex) {
+				// handle any errors
+				System.out.println("SQLException: " + ex.getMessage());
+				System.out.println("SQLState: " + ex.getSQLState());
+				System.out.println("VendorError: " + ex.getErrorCode());
+			} finally {
+				// it is a good idea to release
+				// resources in a finally{} block
+				// in reverse-order of their creation
+				// if they are no-longer needed
+
+				if (stmt != null) {
+					try {
+						stmt.close();
+					} catch (SQLException sqlEx) {
+					} // ignore
+
+					stmt = null;
+				}
+			}
+		} else {
+			System.out.println("Failed to make connection!");
+		}
+		return true;
+	}
 }
