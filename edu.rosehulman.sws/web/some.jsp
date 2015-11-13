@@ -4,10 +4,17 @@
         <title>SO question 4112686</title>
         <script src="http://code.jquery.com/jquery-latest.min.js"></script>
         <script>
-            $(document).on("click", "#getButton", function() { // When HTML DOM "click" event is invoked on element with ID "somebutton", execute the following function...
-                $.get("http://localhost:8080/BasketballTeamPlugin/ExtraServlet/", function(responseText) {   // Execute Ajax GET request on URL of "someservlet" and execute the following function with Ajax response text...
-                    $("#teamdiv").text(responseText);           // Locate HTML DOM element with ID "somediv" and set its text content with the response text.
-                });
+            $(document).on("click", "#getButton", function() {
+				$.getJSON("http://localhost:8080/BasketballTeamPlugin/ExtraServlet/", function(data) {
+					var json = $.parseJSON(data);
+					$.each(json, function(i, item) {
+						//$("#teamdiv").append(data[i].concat("<br>"));
+						$("#teamdiv").append("boop ");
+					});
+				});
+                //$.get("http://localhost:8080/BasketballTeamPlugin/ExtraServlet/", function(responseText) {
+                  //  $("#teamdiv").text(responseText);
+                //});
             });
         </script>
           <script>

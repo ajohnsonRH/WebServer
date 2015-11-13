@@ -1,6 +1,5 @@
 package plugin;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -8,21 +7,14 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import protocol.HttpRequest;
 import protocol.HttpResponse;
 import protocol.HttpResponseFactory;
 import protocol.Protocol;
 
-@WebServlet("/BasketballTeamPlugin/ExtraServlet/*")
-public class ExtraServlet extends HttpServlet implements IServlet {
+import com.google.gson.Gson;
 
-	private static final long serialVersionUID = 1L;
+public class ExtraServlet implements IServlet {
 
 	public HttpResponse service(HttpRequest request, String serverRootDirectory) {
 		HttpResponse response;
@@ -113,25 +105,14 @@ public class ExtraServlet extends HttpServlet implements IServlet {
 		return teams;
 	}
 
-	
-	
-	//TODO DELETE THIS
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException{
-		//super.doGet(req, resp);
-		String text = "some text";
-		System.out.println(this.getServletInfo());
-
-		resp.setContentType("text/plain");  // Set content type of the response so that jQuery knows what it can expect.
-		resp.setCharacterEncoding("UTF-8"); // You want world domination, huh?
-		resp.getWriter().write(text);
-	}
-
 	private HttpResponse doGet(HttpRequest request, String serverRootDirectory) {
 		HttpResponse response;
 		ArrayList<String> teams = doGetTeams();
 		System.out.println("TEAMS: " +teams.toString());
-		response = HttpResponseFactory.create200OKGET(Protocol.CLOSE,teams.toString());
+		String json = new Gson().toJson(teams);
+		System.out.println("json: "+json);
+		response = HttpResponseFactory.create200OKGET(Protocol.CLOSE, json);
+		//response = HttpResponseFactory.create200OKGET(Protocol.CLOSE, teams.toString());
 		return response;
 	}
 
