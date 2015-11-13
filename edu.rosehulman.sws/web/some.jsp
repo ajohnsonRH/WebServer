@@ -3,16 +3,18 @@
     <head>
         <style>
             body {
-        background-color: #d0e4fe;
         font-size: 150%;
+        background: url(bread.jpg);
+        background-size: 1920px 1080px;
+        margin-left: 6cm;
         }
         h1 {
-            color: orange;
+            color: black;
             text-align: center;
         }
         #divider {
             height: 50px;
-            background: #d0e4fe
+            background: #00000000
 }
         </style>
         <title>SO question 4112686</title>
@@ -24,7 +26,7 @@
                    type: 'GET',
                    url:"http://localhost:8080/BasketballTeamPlugin/GetServlet/",
                    success:function(resultData){
-                	   $('#name_list').html(resultData).wrap('<pre />');//.split('l').join('&#10;'));
+                	   $('#name_list').html(resultData).wrap('<pre />');
                 	   }
                 });
             });
@@ -80,7 +82,7 @@
         </script>
     </head>
     <body>
-        <h1> The Best Website Since Sliced Bread</h1>
+        <h1> The Best Website Since Sliced Bread!</h1>
         <p> List Teams </p>
         <button id="getButton">List Teams</button>
         <p id=name_list></p>
@@ -97,8 +99,5 @@
         <p> Delete Team </p>
         <input type="text" name="team_name_d" id ="team_name_d" placeholder="Team name">
         <button id="deleteButton">Delete Team</button>
-        <div id="divider"></div>
-    	<button id="putNewButton">Ajax PUT to newFile.txt</button>
-        
     </body>
 </html>
