@@ -1,3 +1,4 @@
+GET GetFileServlet plugin.GetFileServlet
 GET GetServlet plugin.GetServlet
 POST PostServlet plugin.PostServlet
 PUT PutServlet plugin.PutServlet
